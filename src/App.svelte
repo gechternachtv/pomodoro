@@ -1,6 +1,16 @@
 <script>
 	import Counter from "./Counter.svelte";
 	import { onMount } from "svelte";
+	import Todo from "./Todo.svelte";
+
+	import audiocowUrl from "/cow.wav?url";
+	import audiostartUrl from "/start.wav?url";
+	import audioboingUrl from "/boing.wav?url";
+	import audioflowerUrl from "/flower.wav?url";
+	import audiostartshortUrl from "/startshort.wav?url";
+	import audiomarinbaUrl from "/marinba.wav?url";
+	import audiofinishbreakUrl from "/finishbreak.wav?url";
+
 	let isPlaying = false;
 	let tab = "working";
 	let worksessions = 0;
@@ -10,7 +20,17 @@
 		audioflower,
 		audiostartshort,
 		audiomarinba,
-		audiofinishbreak;
+		audiofinishbreak,
+		audiocow;
+
+	let firststart = true;
+	let starttime = "";
+	function setStartTime() {
+		const now = new Date();
+		const hours = now.getHours();
+		const minutes = now.getMinutes();
+		starttime = `${hours}:${minutes}`;
+	}
 
 	function onFinished() {
 		console.log("⏰ Timer finished!");
@@ -34,17 +54,22 @@
 </script>
 
 <main>
-	<audio bind:this={audiostart} src="/start.wav" preload="auto"></audio>
-	<audio bind:this={audioboing} src="/boing.wav" preload="auto"></audio>
-	<audio bind:this={audioflower} src="/flower.wav" preload="auto"></audio>
-	<audio bind:this={audiostartshort} src="/startshort.wav" preload="auto"
+	<audio bind:this={audiocow} src={audiocowUrl} preload="auto"></audio>
+	<audio bind:this={audiostart} src={audiostartUrl} preload="auto"></audio>
+	<audio bind:this={audioboing} src={audioboingUrl} preload="auto"></audio>
+	<audio bind:this={audioflower} src={audioflowerUrl} preload="auto"></audio>
+	<audio bind:this={audiostartshort} src={audiostartshortUrl} preload="auto"
 	></audio>
-	<audio bind:this={audiomarinba} src="/marinba.wav" preload="auto"></audio>
-	<audio bind:this={audiofinishbreak} src="/finishbreak.wav" preload="auto"
+	<audio bind:this={audiomarinba} src={audiomarinbaUrl} preload="auto"
+	></audio>
+	<audio bind:this={audiofinishbreak} src={audiofinishbreakUrl} preload="auto"
 	></audio>
 
-	<div>
-		work sessions: {worksessions}
+	<div class="dash">
+		<div>work sessions: {worksessions}</div>
+		{#if !firststart}
+			<div>start: {starttime}</div>
+		{/if}
 	</div>
 
 	<div class="tabs">
@@ -100,7 +125,17 @@
 		<button
 			class="startbtn"
 			on:click={() => {
-				audiostart.play()((isPlaying = !isPlaying));
+				if (isPlaying) {
+					audiocow.play();
+				} else {
+					audiostart.play();
+				}
+				if (firststart) {
+					firststart = false;
+					setStartTime();
+				}
+
+				isPlaying = !isPlaying;
 			}}
 		>
 			{isPlaying ? "Pause" : "Start"}
@@ -123,7 +158,13 @@
 		<button
 			class="startbtn"
 			on:click={() => {
-				audiostartshort.play()((isPlaying = !isPlaying));
+				if (isPlaying) {
+					audiocow.play();
+				} else {
+					audiostartshort.play();
+				}
+
+				isPlaying = !isPlaying;
 			}}
 		>
 			{isPlaying ? "Pause" : "Start"}
@@ -146,12 +187,20 @@
 		<button
 			class="startbtn"
 			on:click={() => {
-				audioflower.play()((isPlaying = !isPlaying));
+				if (isPlaying) {
+					audiocow.play();
+				} else {
+					audioflower.play();
+				}
+
+				isPlaying = !isPlaying;
 			}}
 		>
 			{isPlaying ? "Pause" : "Start"}
 		</button>
 	{/if}
+
+	<Todo></Todo>
 </main>
 
 <style>
@@ -164,7 +213,7 @@
 		padding: 15px;
 	}
 	.working {
-		background: #ff702a;
+		background: #a72145;
 		color: white;
 	}
 
@@ -197,5 +246,16 @@
 	.tabs {
 		display: flex;
 		width: 100%;
+	}
+
+	.dash {
+		background: #005541;
+		padding: 10px;
+		border-radius: 10px;
+		margin-bottom: 10px;
+	}
+
+	.startbtn {
+		background: #ffc832;
 	}
 </style>
