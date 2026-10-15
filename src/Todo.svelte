@@ -1,6 +1,7 @@
 <script>
     import { writable } from "svelte/store";
-
+    import {  createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
     // Load todos from localStorage
     const storedTodos = localStorage.getItem("todos");
     let todos = writable(storedTodos ? JSON.parse(storedTodos) : []);
@@ -12,6 +13,15 @@
 
     let newTodo = "";
     let newNumber = 1;
+
+   	function formatTime(number){
+	const toString = number.toString()
+	  if(toString.length === 1){
+			return "0" + toString
+			}else{
+			return toString
+			}
+	}
 
     function addTodo() {
         if (newTodo.trim() === "") return;
@@ -40,13 +50,36 @@
     }
 
     function calcTotal($todos) {
-        const totalPoints = $todos.reduce((sum, t) => sum + (t.number || 0), 0);
+
+        const incompleteTodos = $todos.filter(a => a.done === false)
+        if(incompleteTodos.length === 0 && $todos.length > 0){
+          console.log(" complete!");
+          dispatch("finished");
+        }
+
+        const totalPoints = incompleteTodos.reduce((sum, t) => sum + (t.number || 0), 0);
 
         // Total minutes from points
-        let totalMinutes = totalPoints * 30;
+        let totalMinutes = (totalPoints * 25)
+        let extra = 0;
 
-        // Extra 10 min for every 4 points
-        const extra = Math.floor(totalPoints / 4) * 10;
+
+
+        for (let i = 1; i <= totalPoints; i++) {
+
+            if(i % 4 === 0 && i != totalPoints){
+              console.log("long rest!")
+              extra +=15
+            }else if(i != totalPoints){
+              console.log("short rest!")
+              extra +=5
+            }
+
+          console.log({i:i,totalpoints:totalPoints,extraminutes:extra})
+        }
+
+
+
         totalMinutes += extra;
 
         const hours = Math.floor(totalMinutes / 60);
@@ -54,7 +87,7 @@
 
         return {
             totalPoints,
-            totalTime: `${hours}:${minutes.toString().padStart(2, "0")}`,
+            totalTime: `${formatTime(hours)}h:${minutes.toString().padStart(2, "0")}m`,
         };
     }
 
@@ -64,7 +97,7 @@
 <!-- Total sum of all numbers -->
 <div class="counter">
     <p>Total: {totalNumbers()}</p>
-    <p>Total time: {total.totalTime}</p>
+    <p>Time estimation: {total.totalTime}</p>
 </div>
 
 <div>

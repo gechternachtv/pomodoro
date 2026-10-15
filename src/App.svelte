@@ -10,6 +10,7 @@
 	import audiostartshortUrl from "/startshort.wav?url";
 	import audiomarinbaUrl from "/marinba.wav?url";
 	import audiofinishbreakUrl from "/finishbreak.wav?url";
+	import audiotadaUrl from "/ta-da.mp3?url";
 
 	let isPlaying = false;
 	let tab = "working";
@@ -21,15 +22,26 @@
 		audiostartshort,
 		audiomarinba,
 		audiofinishbreak,
+		audiotada,
 		audiocow;
 
 	let firststart = true;
 	let starttime = "";
+
+	function formatTime(number){
+	const toString = number.toString()
+	  if(toString.length === 1){
+			return "0" + toString
+			}else{
+			return toString
+			}
+	}
+
 	function setStartTime() {
 		const now = new Date();
 		const hours = now.getHours();
 		const minutes = now.getMinutes();
-		starttime = `${hours}:${minutes}`;
+		starttime = `${formatTime(hours)}:${formatTime(minutes)}`;
 	}
 
 	function onFinished() {
@@ -44,6 +56,7 @@
 				permissionGranted = permission === "granted";
 			});
 		}
+
 	});
 
 	function notify(title, options) {
@@ -52,13 +65,15 @@
 		}
 	}
 </script>
-
 <main>
+    <div class="main-container">
 	<audio bind:this={audiocow} src={audiocowUrl} preload="auto"></audio>
 	<audio bind:this={audiostart} src={audiostartUrl} preload="auto"></audio>
 	<audio bind:this={audioboing} src={audioboingUrl} preload="auto"></audio>
 	<audio bind:this={audioflower} src={audioflowerUrl} preload="auto"></audio>
 	<audio bind:this={audiostartshort} src={audiostartshortUrl} preload="auto"
+	></audio>
+	<audio bind:this={audiotada} src={audiotadaUrl} preload="auto"
 	></audio>
 	<audio bind:this={audiomarinba} src={audiomarinbaUrl} preload="auto"
 	></audio>
@@ -117,11 +132,19 @@
 						tab = "short";
 						notify("short break");
 					}
+
 					audioboing.play();
 					onFinished();
 				}}
 			></Counter>
 		</div>
+		<!-- <button class="skipbtn" on:click={() => {
+
+				audiocow.play();
+				isPlaying = false;
+		}}>
+		skip >>
+		</button> -->
 		<button
 			class="startbtn"
 			on:click={() => {
@@ -184,6 +207,7 @@
 				}}
 			></Counter>
 		</div>
+
 		<button
 			class="startbtn"
 			on:click={() => {
@@ -200,10 +224,29 @@
 		</button>
 	{/if}
 
-	<Todo></Todo>
+	<Todo on:finished={()=>{
+	if(audiotada){
+	if(audiotada.play){
+	audiotada.play()
+	}
+	}
+	}}></Todo>
+    </div>
 </main>
 
+
+
 <style>
+.skipbtn{
+    border-radius:0px;
+}
+    .main-container {
+	background: #000010;
+	padding: 10px;
+	border-radius: 10px;
+	min-width:210px;
+    }
+
 	* {
 		font-family: "bitbuntu";
 		font-size: 12px;
